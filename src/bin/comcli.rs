@@ -113,5 +113,4 @@ fn main() {
         let paths = find_all_jpegs(Path::new(&pathString));
 
     }
-    //compress_path("images".to_string());
 }

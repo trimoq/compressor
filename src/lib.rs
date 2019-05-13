@@ -11,6 +11,26 @@ pub mod compressor{
     pub use crate::compress_path;
 }
 
+
+pub struct CompressionSpec{
+    pub path: PathBuf,
+    pub target_path: PathBuf,
+    pub scale: Scale,
+    pub quality: Quality
+}
+
+#[derive(Copy, Clone)]
+pub enum Scale{
+    Ratio(f32),
+    Dimension(u32,u32)
+}
+
+#[derive(Copy, Clone)]
+pub enum Quality{
+    Fastest,
+    Best,
+}
+
 pub fn compress_path(pathString: String){
     /*
     let paths = find_all_files(Path::new(&pathString));
@@ -149,24 +169,4 @@ pub fn find_all_jpegs(dir: &Path) -> Vec<PathBuf> {
         println!("Cannot read dir: {:?}",dir);
     }
     return result_vec;
-}
-
-
-pub struct CompressionSpec{
-    pub path: PathBuf,
-    pub target_path: PathBuf,
-    pub scale: Scale,
-    pub quality: Quality
-}
-
-#[derive(Copy, Clone)]
-pub enum Scale{
-    Ratio(f32),
-    Dimension(u32,u32)
-}
-
-#[derive(Copy, Clone)]
-pub enum Quality{
-    Fastest,
-    Best,
 }
