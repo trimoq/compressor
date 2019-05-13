@@ -31,39 +31,6 @@ pub enum Quality{
     Best,
 }
 
-pub fn compress_path(pathString: String){
-    /*
-    let paths = find_all_files(Path::new(&pathString));
-    let target_path = Path::new(&pathString).join(Path::new("compressed"));
-
-
-    if paths.len()>1{
-        compress_path_buf_vec(paths,target_path)
-    }
-    else {
-        println!("Could not find any files in {}",pathString)
-    }
-    */
-}
-
-pub fn compress_path_buf_vec(paths: Vec<PathBuf>, target_path:PathBuf){
-    let num_elems = paths.len();
-    println!("Compressing {} elemets to {} ",num_elems,target_path.to_str().unwrap_or("Unknown Destrination"));
-     let spec_vec = paths
-        .iter()
-        .map(|path|{
-            CompressionSpec{
-                path: path.clone(),
-                target_path: target_path.clone(),
-                scale: Scale::Ratio(0.1f32),
-                quality: Quality::Fastest
-            }
-        })
-        .collect();
-    let num_saved_images = compress_specs(spec_vec);
-    println!("Sucessfully saved {} images",num_saved_images);
-}
-
 pub fn compress_specs(specs : Vec<CompressionSpec>)->u32{
     specs.iter().map(|spec|compress(spec)).sum()
 }

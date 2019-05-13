@@ -102,7 +102,8 @@ fn main() {
                 scale,quality}
 
         }).collect();
-        compress_specs(specs);
+        let num_saved_images = compress_specs(specs);
+        println!("Sucessfully saved {} images",num_saved_images);
     }
     else {
         let mut pathString = ".";
