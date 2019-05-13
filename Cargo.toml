@@ -1,0 +1,13 @@
+[package]
+name = "compressor"
+version = "0.1.0"
+authors = ["Marco Amann <marco@amann.dev>"]
+edition = "2018"
+
+[dependencies]
+image = "0.20.1"
+clap = "2.33.0"
+
+[[bin]]
+name = "comcli"
+path = "src/bin/comcli.rs"
