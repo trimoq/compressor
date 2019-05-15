@@ -6,12 +6,6 @@ use image::{GenericImageView,DynamicImage,FilterType};
 use std::ffi::OsStr;
 use std::iter::Filter;
 
-
-pub mod compressor{
-    pub use crate::compress_path;
-}
-
-
 pub struct CompressionSpec{
     pub path: PathBuf,
     pub target_path: PathBuf,
