@@ -29,6 +29,21 @@ pub fn compress_specs(specs : Vec<CompressionSpec>)->u32{
     specs.iter().map(|spec|compress(spec)).sum()
 }
 
+
+pub fn getSpec(quality: Quality, scale: Scale, v: &str, target_path: PathBuf) -> CompressionSpec {
+    dbg!(format!("Using file: {:?}", v));
+    println!("Saving to {:?}", target_path);
+    let path = Path::new(v).to_path_buf();
+    let scale = scale.clone();
+    let quality = quality.clone();
+    CompressionSpec {
+        path,
+        target_path,
+        scale,
+        quality
+    }
+}
+
 fn compress( spec: &CompressionSpec)->u32{
 
     if !spec.target_path.exists(){

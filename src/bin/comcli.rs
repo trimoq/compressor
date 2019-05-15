@@ -1,10 +1,10 @@
 
 extern crate compressor;
-use compressor::{CompressionSpec, Scale, Quality, compress_specs, find_all_jpegs};
+use compressor::{CompressionSpec, Scale, Quality, compress_specs, find_all_jpegs,getSpec};
 
 extern crate clap;
 use clap::{Arg, App, SubCommand, ArgGroup, ArgMatches};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 fn main() {
     let matches = create_clap();
@@ -27,19 +27,9 @@ fn main() {
     if matches.is_present("files"){
         let files = matches.values_of("files");
         let files = files.unwrap();
-        let specs = files.map(|v| {
-            dbg!(format!("Using file: {:?}",v));
-            let target_path = Path::new(output_path_string).to_path_buf();
-            println!("Saving to {:?}",target_path);
-            let path = Path::new(v).to_path_buf();
-            let scale = scale.clone();
-            let quality = quality.clone();
-            CompressionSpec{
-                path,
-                target_path,
-                scale,quality}
-
-        }).collect();
+        let specs = files
+            .map(|v| getSpec(quality, scale, v, target_path))
+            .collect();
         let num_saved_images = compress_specs(specs);
         println!("Sucessfully saved {} images",num_saved_images);
     }
@@ -53,6 +43,7 @@ fn main() {
 
     }
 }
+
 
 fn create_clap() -> ArgMatches<'static> {
     App::new("Compressor")
