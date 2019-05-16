@@ -1,15 +1,19 @@
 
 extern crate compressor;
-use compressor::{CompressionSpec, Scale, Quality, compress_specs, find_all_jpegs,getSpec};
+use compressor::{Scale, Quality, compress_specs, find_all_jpegs,get_spec};
 
 extern crate clap;
-use clap::{Arg, App, SubCommand, ArgGroup, ArgMatches};
+use clap::{Arg, App, ArgGroup, ArgMatches};
 use std::path::{Path, PathBuf};
 
 fn main() {
+    // get the arguments from the cli
     let matches = create_clap();
 
+    // parse the output path
     let output_path_string = matches.value_of("output").unwrap_or("compressed");
+
+    // parse the quality, default to fastest since nobody wants to wait
     let quality = match matches.value_of("quality") {
         Some(s) => {
             match s {
@@ -23,25 +27,34 @@ fn main() {
 
     let scale = parse_scale(&matches);
 
-
+    // get the files according to the user-desired method, defaults to using the pwd
     if matches.is_present("files"){
         let files = matches.values_of("files");
         let files = files.unwrap();
-        let specs = files
-            .map(|v| getSpec(quality, scale, v, target_path))
-            .collect();
-        let num_saved_images = compress_specs(specs);
-        println!("Sucessfully saved {} images",num_saved_images);
+        let files = files.map(|v|Path::new(v).to_path_buf()).collect();
+        compress_files(quality, scale, files, output_path_string);
     }
     else {
-        let mut pathString = ".";
+        let mut path_string = ".";
         if matches.is_present("input_dir") {
-            pathString = matches.value_of("input_dir").unwrap_or(".");
-            println!("Using input dir: {}", pathString);
+            path_string = matches.value_of("input_dir").unwrap_or(".");
+            println!("Using input dir: {}", path_string);
         }
-        let paths = find_all_jpegs(Path::new(&pathString));
-
+        let paths = find_all_jpegs(Path::new(&path_string));
+        compress_files(quality, scale, paths,output_path_string);
     }
+}
+
+/**
+Compress the passed files according to the parameters
+*/
+fn compress_files(quality: Quality, scale: Scale, files: Vec<PathBuf>,output_path_string: &str) {
+    let specs = files
+        .iter()
+        .map(|v| get_spec(quality, scale, v.clone(), v.parent().unwrap().join(output_path_string)))
+        .collect();
+    let num_saved_images = compress_specs(specs);
+    println!("Sucessfully saved {} images", num_saved_images);
 }
 
 
@@ -100,16 +113,13 @@ fn create_clap() -> ArgMatches<'static> {
         .get_matches()
 }
 
+/**
+Parse the scale from the matches
+If a dimension is specified, use it, else default to a scale of 0.1
+*/
 fn parse_scale(matches: &ArgMatches) -> Scale {
-    let scale = match matches.is_present("ratio") {
+    let scale = match matches.is_present("dim") {
         true => {
-            let ratio = matches.value_of("ratio").unwrap_or("0.1");
-            let ratio = ratio.parse::<f32>().unwrap_or(0.1);
-            println!("Scale ratio: {}", ratio);
-
-            Scale::Ratio(ratio)
-        }
-        _ => {
             let dim = matches.value_of("dim").unwrap_or("100x100");
             let dims: Vec<u32> = dim.split("x").map(|i| i.parse::<u32>().unwrap_or(1)).collect();
             if dims.len() != 2 {
@@ -117,6 +127,12 @@ fn parse_scale(matches: &ArgMatches) -> Scale {
             }
             println!("Scale x: {},y: {}", dims[1], dims[1]);
             Scale::Dimension(dims[0], dims[1])
+        }
+        _ => {
+            let ratio = matches.value_of("ratio").unwrap_or("0.1");
+            let ratio = ratio.parse::<f32>().unwrap_or(0.1);
+            println!("Scale ratio: {}", ratio);
+            Scale::Ratio(ratio)
         }
     };
     scale
